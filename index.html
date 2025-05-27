@@ -1,9 +1,753 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Hello World</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>24 Messages for You</title>
+    <style>
+        @font-face {
+            font-family: 'CustomFont';
+            src: url('CustomFont/Montserrat-Regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            touch-action: pan-y;
+        }
+
+        body {
+            font-family: 'CustomFont', serif;
+            background: linear-gradient(135deg, #ffb7b7 0%, #ffdfd3 100%);
+            user-select: none;
+        }
+
+        .container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .card {
+            width: 90%;
+            max-width: 500px;
+            height: 80vh;
+            background: rgba(255, 240, 240, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            position: absolute;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card.prev {
+            transform: translateX(-120%) scale(0.8);
+            opacity: 0;
+        }
+
+        .card.current {
+            transform: translateX(0) scale(1);
+            opacity: 1;
+            z-index: 10;
+        }
+
+        .card.next {
+            transform: translateX(120%) scale(0.8);
+            opacity: 0;
+        }
+
+        .splash-screen {
+            text-align: center;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            background: linear-gradient(45deg, #ffb7b7 0%, #ffdfd3 50%, #ffdfd3 100%);
+        }
+
+        .splash-title {
+            font-size: 2.5rem;
+            color: #5a3a3a;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .splash-subtitle {
+            font-size: 1.5rem;
+            color: #7a5a5a;
+            margin-bottom: 40px;
+        }
+
+        .heart {
+            font-size: 3rem;
+            color: #ff6b81;
+            animation: heartbeat 2s infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .message-card {
+            padding: 40px;
+            height: 100%;
+            overflow-y: auto;
+            background: linear-gradient(135deg, #fff0f0 0%, #ffdfd3 100%);
+        }
+
+        .message-number {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 240, 240, 0.8);
+            color: #8a6a6a;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border: 1px solid rgba(255, 182, 193, 0.5);
+        }
+
+        .message-title {
+            font-size: 1.8rem;
+            color: #6a4a4a;
+            margin-top: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            border-bottom: 2px solid #ff8fab;
+            padding-bottom: 10px;
+        }
+
+        .message-content {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #6a5a5a;
+            text-align: left;
+        }
+
+        .navigation-hint {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(106, 74, 74, 0.8);
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 10px 20px;
+            border-radius: 20px;
+            background: rgba(255, 240, 240, 0.9);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 182, 193, 0.3);
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: #ff8fab;
+            transition: width 0.5s ease;
+            z-index: 200;
+        }
+
+        /* Tablet landscape and smaller */
+        @media (max-width: 1024px) {
+            .card {
+                width: 85%;
+            }
+        }
+
+        /* Tablets and large phones */
+        @media (max-width: 768px) {
+            .card {
+                width: 85%;
+                height: 80vh;
+            }
+
+            .splash-title {
+                font-size: 2rem;
+            }
+
+            .splash-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .message-card {
+                padding: 30px 25px;
+            }
+
+            .message-title {
+                font-size: 1.5rem;
+            }
+
+            .message-content {
+                font-size: 1rem;
+            }
+
+            .navigation-hint {
+                bottom: 15px;
+                font-size: 0.8rem;
+                padding: 8px 16px;
+            }
+
+            .message-number {
+                top: 10px;
+                right: 10px;
+                font-size: 0.8rem;
+                padding: 6px 12px;
+            }
+        }
+
+        /* Phones */
+        @media (max-width: 480px) {
+            .card {
+                width: 85%;
+                height: 80vh; /* Enforced 80vh height on small screens */
+            }
+
+            .splash-screen {
+                padding: 40px 30px;
+            }
+
+            .splash-title {
+                font-size: 1.8rem;
+            }
+
+            .splash-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .message-card {
+                padding: 25px 20px;
+            }
+
+            .message-title {
+                font-size: 1.3rem;
+            }
+
+            .message-content {
+                font-size: 0.95rem;
+            }
+        }
+
+        /* Very small devices */
+        @media (max-width: 360px) {
+            .card {
+                width: 85%;
+                height: 80vh;
+            }
+
+            .message-title {
+                font-size: 1.2rem;
+            }
+
+            .message-content {
+                font-size: 0.9rem;
+            }
+        }
+
+        .message-card::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .message-card::-webkit-scrollbar-track {
+            background: rgba(255, 182, 193, 0.1);
+            border-radius: 3px;
+        }
+
+        .message-card::-webkit-scrollbar-thumb {
+            background: rgba(255, 105, 180, 0.3);
+            border-radius: 3px;
+        }
+    </style>
 </head>
 <body>
-  <h1>Hello, World!</h1>
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="container" id="container">
+        <div class="card current" id="splash">
+            <div class="splash-screen">
+                <div class="splash-title">24 Messages for You</div>
+                <div class="splash-subtitle">Happy 24th Birthday Love</div>
+                <div class="heart">💖</div>
+            </div>
+        </div>
+
+        <div class="card next" data-message="1">
+            <div class="message-number">1 / 24</div>
+            <div class="message-card">
+                <div class="message-title">I love the way you laugh</div>
+                <div class="message-content">
+                    I love the way you laugh, it's contagious. Gusto ko yung tawa mo na kung tawa, tawa talaga. Walang pigil, walang arte, totoo. Basta there’s something sa tawa mo na basta tumatawa ka, natatawa na rin ako. Parang may magic yung tawa mo na kayang gawing mas magaan yung pakiramdam ko.
+                    <br><br>
+                    It’s one of the things I look forward to sa bawat araw na kasama kita. Yung makita at marinig ko lang na masaya ka, enough na yun para mapangiti rin ako. 
+                    <br><br>
+                    Ang sarap pakinggan. Ang sarap makita. At ang sarap sa pakiramdam na ako yung kasama mo sa mga moments na natatawa ka ng ganun.
+                </div>
+            </div>
+        </div>
+
+        <div class="card next" data-message="2">
+            <div class="message-number">2 / 24</div>
+            <div class="message-card">
+                <div class="message-title">I love how you make me feel safe and seen</div>
+                <div class="message-content">
+                    Although may mga times na mainit ang mga ulo natin, there are many times na you made me feel safe and seen.
+                    <br><br>
+                    May mga panahon na nagseselos ako and I can really say na hindi mo ako pinapabayaan magselos. Nililinaw mo agad, binigbigyan mo ako ng assurance, you try your best na samahan ako sa mga times na kagaya nun. And that means so much to me.
+                    <br><br>
+                    Hindi perfect lahat ng araw, pero sa mga pagkakataong ganito, mas lalo kong nararamdaman na pinipili mo ako, not when things were just easy, but even when things are a little messy. And that kind of love? Hindi ko na hahayaang mawala.
+                </div>
+            </div>
+        </div>
+
+        <div class="card next" data-message="3">
+            <div class="message-number">3 / 24</div>
+            <div class="message-card">
+                <div class="message-title">I admire how you keep going, even when you're tired or stressed</div>
+                <div class="message-content">
+                    I admire how hard you work, even when you’re tired or stressed. Kahit pagod ka na, and walang tulog, you still give your best. Naalala ko pa noon sa Alorica, kahit may shift ka na madaling-araw, kahit stressed ka na, nagagawa mo pa ring kausapin ako. Minsan nga kahit may away tayo, you still make the effort to check on me and make things okay. You don’t shut me out kahit na ganun, and that takes strength.
+                    <br><br>
+                    Also, yung pagre-review mo for your licensure exam habang nagtatrabaho ka pa rin. And let’s be real, hindi mo talaga naramdaman yung suporta ng magulang mo. Instead of encouragement, mas madalas pang puna at galit ang natatanggap mo. I’m sorry, medyo nainis lang ako kasi alam ko kung gaano mo pinipilit lahat, kahit pagod ka na, kahit walang masyadong umaalalay sa'yo. Sobrang humahanga ako sayo. I’ll always be here for you kahit anong mangyari, kahit itakwil ka na ng lahat, hinding-hindi kita iiwan.
+                </div>
+            </div>
+        </div>
+
+        <div class="card next" data-message="4">
+            <div class="message-number">4 / 24</div>
+            <div class="message-card">
+                <div class="message-title">I  love your clingy and cute side</div>
+                <div class="message-content">
+                    I love your clingy and cute side. Yung mga simpleng lambing mo, pag gusto mong magpahug bigla, pag gusto mong magkiss bigla, kapag nagsasabi ka ng “I miss you”, or nagsasabi ka ng “I love you”. May charm ka na hindi ko kayang tanggihan. Yung pagiging clingy mo? Nakakakilig. Ramdam na ramdam kong mahal mo ako sa mga moments na gusto mong laging malapit sa'kin, and I’ll never get tired of that.
+                </div>
+            </div>
+        </div>
+
+        <div class="card next" data-message="5">
+            <div class="message-number">5 / 24</div>
+            <div class="message-card">
+                <div class="message-title">I love how you make a sad face</div>
+                <div class="message-content">
+                    I don’t want to see you sad, but I find it really cute whenever you make that sad face.
+                    <br><br>
+                    I remember when we were at the hotel, and your ear started hurting, you weren’t yourself, you were crying, but you still looked so cute. I didn’t want to leave your side, not even for a moment but I needed to kasi bibili ako ng gamot mo.
+                    <br><br>
+                    And there was also that time I was teasing you while you were sleeping. I said, “Kawawa naman ang asawa ko,” and you instantly made a sad face.
+                    <br><br>
+                    Love, you’re so precious.
+                </div>
+            </div>
+        </div>
+
+        <div class="card next" data-message="6">
+            <div class="message-number">6 / 24</div>
+            <div class="message-card">
+                <div class="message-title">I love your shiny beautiful eyes</div>
+                <div class="message-content">
+                    There’s something in your eyes that quietly pulls me in. Once na titigan mo na ako, parang ayaw ko nang umalis, gusto ko nalang makipagtitigan sayo. I could spend forever just staring into your eyes, and still, it wouldn’t feel like enough.
+                </div>
+            </div>
+        </div>
+
+        <div class="card next" data-message="7">
+            <div class="message-number">7 / 24</div>
+            <div class="message-card">
+                <div class="message-title">1st official date and 1st holding hands</div>
+                <div class="message-content">
+                    It wasn’t our first time going out, but it was the first time we showed up as something real, something official. I still remember how you threatened me, you gave me a warning about what would happen if I didn’t call you "love" out loud the way I did in our messages.
+                    <br><br>
+                    Hinintay kita sa meeting spot natin, a place I later renamed as “Johnson’s” instead of "Uncle John’s”. I bought Nagaraya Nuts, eating them one by one until dumating ka. When we shyly called each other "love" for the first time, our voices were barely above a whisper, as if we were testing the word between us.
+                    <br><br>
+                    We took a tricycle to DarkRoast Coffee House, only to find it still closed because we arrived too early from their opening time. So instead, pumunta tayo sa Saints and Lattes, a coffee shop not far away. We ordered drinks, fries, and calamari. We studied together while also having fun.
+                    <br><br>
+                    But the moment I remember most was on the way home, when our hands found each other for the first time. We kept joking around, even though we were both a little shy. I think it just showed how naturally we eased into that moment together, it reinforced the feeling that being around you feels so light and peaceful.
+                    <br><br>
+	                It was simple. It was perfect. It was ours.
+                </div>
+            </div>
+        </div>
+
+        <div class="card next" data-message="8">
+            <div class="message-number">8 / 24</div>
+            <div class="message-card">
+                <div class="message-title">1st kiss while raining</div>
+                <div class="message-content">
+                    The sun was high but I’m waiting for you under the shade of our meeting place, a footbridge near the coffee shop we planned to check out.Someone from QCU saw me, one of the organization presidents from our department. The timing was kind of perfect since there was a meeting I had planned to skip anyway. Honestly, I’d never trade time with you for something that doesn’t really matter.
+                    <br><br>
+                    And then you arrived.
+                    <br><br>
+                    A blue modern jeep pulled up, and there you were, stepping out onto the sidewalk, I also saw a little shit (the one who’d later make me jealous) gazing out the jeepney window. At that moment, though, all I saw was you.
+                    <br><br>
+                    We walked to Kalinaw Coffee, a short stroll which already felt like a date. We ordered sweet drinks, pancakes, fries, and watched a couple pose for what might’ve been their prenup photos. It was cute.
+                    <br><br>
+                    By the time we left, the sky was dark. The rain was heavy. We both had umbrellas, but we shared mine anyway, our shoulders pressed close, our steps synchronized. I kept stealing glances at you, my heart pounding, waiting for the right moment, the perfect moment to kiss you.
+                    <br><br>
+                    We took cover in front of a small bank, laughing as the rain soaked our shoes, our clothes, our hair. The world seems to slow down, then I finally did it. I kissed you.
+                    <br><br>
+                    I didn’t care about the people passing by. I didn’t care that we were drenched. All I cared about was the way your lips felt against mine, the way time seemed to stop just for us. When we pulled apart, I immediately asked for another.
+                    <br><br>
+                    You took the bus home. I walked, and the whole way back, I couldn’t stop smiling.
+                </div>
+            </div>
+        </div>
+
+        <div class="card next" data-message="9">
+            <div class="message-number">9 / 24</div>
+            <div class="message-card">
+                <div class="message-title">Intramuros</div>
+                <div class="message-content">
+                    It was another boring day in school but thankfully I have something to look forward to. You had your civil engineering licensure exam to register for in Manila and we planned to go to Intramuros after. 
+                    <br><br>
+                    As soon as class ended, I rushed out, hopping onto a jeepney, then a train, retracing the route my friends and I once took for a project. My memory was almost perfect, until I embarrassed myself when I took another jeepney. I asked the jeepney driver for "Intramuros" while already in Intramuros. I eventually just stepped off, deciding to walk instead.
+                    <br><br>
+                    And then, I arrived at our meeting place. An arc entrance to the Walled City. We found each other, though not without me being confused about where to look for you first. We ate, then wandered to Baluarte de San Diego, where I tried (and failed) to steal a kiss. Determined to still kiss you, we walked all the way to Fort Santiago, skipping the historical markers and heading straight for the Pasig River Riverwalk. The benches were taken, so we sat down on a concrete fence post instead, watching water lilies drift by as the sun went lower.
+                    <br><br>
+                    And then, finally, we kissed.
+                    <br><br>
+                    Again. And again.
+                    <br><br>
+                    We’d talk for a moment, then kiss. Then talk, then kiss. Each one is sweeter than the last. I didn’t care about anything else. If all I ever did was kiss you for the rest of my life, it would’ve been enough.
+                    <br><br>
+                    Later, we headed to La Cathedral Cafe. We weren’t sure where to go at first, but we eventually made it. The food was forgettable, but it didn’t matter. Nothing could’ve dulled that happiness.
+                    <br><br>
+                    We ended the night on a bench in front of Manila Cathedral, talking between kisses under the soft glow of lights hanging through a tree, while a gentle breeze brushed against our skin.
+                </div>
+            </div>
+        </div>
+
+        <div class="card next" data-message="10">
+            <div class="message-number">10 / 24</div>
+            <div class="message-card">
+                <div class="message-title">Enchanted Kingdom</div>
+                <div class="message-content">
+                    It was our 5th monthsary. We planned to meet sa Cubao, dun sa may approve na Zinger Steak. I member kung paano ko inayos yung gift ko sayo para di mo agad makita agad, nag-stop over pa ako sa sidewalk ng SM. We ate sa KFC then sumibat na agad tayo. Kahit na malayo ang biyahe, hindi ko masyadong dama kasi katabi kita. I love the warmth when our skin touches. I love the scent of your hair. I love the sound of your voice when you’re telling a story. I love how your hand fits into mine. I love how you rest your head on my shoulder. Everything feels right when you’re by my side.
+                    <br><br>
+                    After ng biyahe, dumating na tayo sa Waltermart na malapit sa Enchanted Kingdom. We bought a bottled water and asked for directions sa mga security guard. Ang nakakatuwa dun, ang bait nila magturo ng direction. From Waltermart, we took a tricycle to Enchanted Kingdom.
+                    <br><br>
+                    And then we arrived sa destination natin.
+                    <br><br>
+                    Bad news, bawal magpasok ng outside food. Hindi pwede ipasok yung mga gift kong foods so pumunta muna tayo sa malapit na Starbucks but we changed our minds and went to Mary Grace na katabi lang naman. We ordered Chocolate Drinks (Hot and Cold) and cheese roll. Spoiler alert: Hindi approve. Kinain natin yung mga food natin dun and then nag-charge na din ng phone.
+                    <br><br>
+                    Then we finally entered Enchanted Kingdom. Nagikot tayo para hanapin yung Achor’s Away because yun agad ang target natin. We realized na walang map na binigay na meron dapat naman. So ayun, we rode Archor’s Away and dun palang aaminin ko na medyo nahilo na agad ako pero nawala naman agad. Pero I can say naman na di siya masyado nakakalula at masarap ang hangin kasi nagsi-swing lang naman siya. Kasomedyo maninit pa kasi tanghaling tapat.
+                    <br><br>
+                    Next ride naman is yung tower drop. Ito ang nakakalula. Nakakakaba yung dahan-dahang pagtaas natin pero at the same time I can see the overlooking view and siyempre hawak ko ang kamay mo, panalong-panalo. Then nagclick yung mechanism ng ride. We dropped. My stomach went up to my chest. I can’t remember if I screamed but most likely, yes. It lasted for a few seconds. I felt the slight impact of us slowing down at the bottom. We looked at each other and laughed. It was honestly terrifying but at the same time, perfect, because you’re there. On the way down, like I always do, I fell for you a little harder.
+                    <br><br>
+                    Next stop is the Roller Skater. Ito yung “Sorry Ma’am”, ang sarap kasi ng legs mo eh. Dito nalalahilo na, mas malala ng konti sa Anchor’s Away, pero kaya pa naman. Medyo Kabado lang. But again, masarap yung hangin. Ikaw tumatawa nalang kada liko ng ride.
+                    <br><br>
+                    Then ito na ang putang ina. Ang Space Shuttle. Paakyat na tayo nang paakyat ng rails, when the sound of the chains gets longer, when the ground seems farther, narealize ko na mawawala na ang dating ako pagkatapos nito. I held your hands tighter. A few moments later, the steady sound of a chain pulling us up disappeared. Tapos wala na, sobrang bilis. Tumatagilid, bumabaliktad na yung sikmura ko. Hindi ko na alam yung itaas sa ibaba. Inaaagaw ko na yung kamay mo. I was screaming my heart out. I glanced at you tapos tawang-tawa ka lang sakin.
+                    <br><br>
+                    Then the train slowed down again. We started going up again, backwards this time. I barely had time to breathe before we got pulled up the second hill, this time facing the other way. And just when I thought I was ready for it, we dropped again, same loops, same chaos, but now in reverse. And siguro puro mura nalang yung nasabi ko noon. It was stomach-churning but I still enjoyed it because you’re there beside me.
+                    <br><br>
+                    After that extreme ride, you noticed how not ok I am, so we took a break para bumalik ako sa ulirat. You gave me chocolates, we bought hotdogs from the nearby store. You were patient with me to recover. We made our way to Swan Lake to drive some pedaled swan boats. The sun was scorching hot but we didn’t care, as long as we're together. Sa una, fini-figure out pa natin kung pano icontrol yung boat. Nahihirapan din tayo mag-padyak kasi sumasabit yung mga sapatos natin sa pedal. Tamang iwas lang sa ibang boats tapos konting pictures and videos habang hirap lumiko.
+                    <br><br>
+                    "I can live, I can love, I can reach the heavens above, I can right what is wrong, I can sing just any song, I can dance, I can fly and touch the rainbow in the sky, I can be your good friend, I can love you until the end" Yan yung naririnig ko habang iniikot-ikot ang katawan ko. Again, I didn’t know what’s up and what’s down. Pero ito, I can say naman na kaya ko kahit mukhang mamamatay na ako tapos ikaw tawang-tawa ka ulit sakin. Ang sarap ng hangin na habang winawasiwas tapos hawak ko pa ang kamay mo.
+                    <br><br>
+                    The next thing na sinakyan natin ay ang “Up, Up, and Away!”, Ito basic lang kasi paikot-ikot lang naman.
+                    <br><br>
+                    And again, kumain tayo. Balak pa sana natin kumain sa malamig sana, samay aircon kaso namahalan tayo sa foods. We ended up eating chicken with rice na hindi approve yung napili kong flavor. We took a rest and then continue sa pagsakay sa mga rides.
+                    <br><br>
+                    Ang next naman sana nating sasakyan ay ang “Isa sa mga pinakabagong rides dito sa Enchanted Kingdom yung tinatawag na, TwiN SPIN! ISANG URI NG ROLLERCOASTER, NA UMIIKOT, BUMUBULUSOK, at winawasiwas ka nang napakabiLIS! PERO BUKOD DITO, UMIIKOT DIN YUNG MISMONG BAGON, KUNG SAN KA NAKASAKAY! KAYA NAPAKAEXCITING, NAPAKABILIS!” pero I chickened out. I just want to thank you again say na I really appreciate you dahil inisip mo pa din ang kalagayan ko noon. Parang mamamatay na kasi eh. Umupo nalang muna tayo sa isang tabi and then tinuloy ang pagiikot natin sa Enchanted Kingdom.
+                    <br><br>
+                    The next thing we did was ride bump cars. I can’t say much about it kasi hindi ako masyadong nakagalaw kasi na-stuck lang ako. We should try it again. Ang worth-it lang dun is yung katabi kita sa pila.
+                    <br><br>
+                    Ito ang next. Disk-O-Magic. Upgraded version ata to ng Anchors Away. Umiikot na nagsi-swing pa. Ikaw, tawa lang nang tawa habang ako, nakapikit na parang nagdadasal Ayun, nakakalula but kasama kita kaya worth it siya. 
+                    <br><br>
+                    Naglakad-lakad tayo ulit and sumakay tayo sa Flying Fiesta. This one is also easy (kahit nahihilo padin) kasi paikot-ikot lang din. Parang sumakay lang sa swing. Yung bata sa harap is enjoy na enjoy pa. Nagsi-swing pa yung paa niya.
+                    <br><br>
+                    The next thing na ginawa natin ay sumakay tayo sa Ferris Wheel. Mahaba din ang pila dito. The lights of the park were already glowing. The sun is already down. Sumakay tayo and unti-unti tayong umangat. Everything looked calm calm from up there. Medyo nalulula ako nung una but nawala din agad. Gusto sana nating magkatabi sa upuan, pero sabi nila bawal daw kasi hindi balanse. Kaya ang ending, magkaharap tayo. Mas malinaw kitang makita. Your beauty, matched with the view from above. 
+                    <br><br>
+                    Then ito na, ang Alcatraz. May picture taking pa nung una but may pagulat pala agad, umalog yung platform. I am looking forward sa jumpscare pero sayang, napasabay tayo dun sa group ng students and hindi natin naexperience ng harapan. But still, it was quite a memory. I remember na may nanlikod satin na nanakot. Yung isang student na nasa harap natin tumalsik dahil nagulat, napatalon si ya. Nakaka nginig yung nagvavibrate na daan and nakakatakot din yung ambiance ng lugar. Ang sarap sa feeling kasi nakayakap and nakahawak ka sakin.
+                    <br><br>
+                    After that, nagpahinga na tayo. Umupo-upo. Nadaanan natin yung mga rides na nasakyan natin. Nagkaroon ng fireworks display. Pinili natin yunf spot na atleast kita pa din yung fireworks. Nagtabi tayo sa bench, and we decided na umuwi na. Nagpicture-picture tayo before umalis at mag-goodbye sa Enchanted Kingdom.
+                    <br><br>
+                    Nagtricycle ulit tayo pabalik sa Waltermart. You bought waffles habang ako nag-buy ng water. After that, medyo nahirapan pa tayo maghanap ng sasakyan but still, nakabyahe pa din tayo. Magkasandal tayo during the whole trip. Mga pagod. Sobrang memorable nitong experience batin together and I hope na maulit.
+                </div>
+            </div>
+        </div>
+        
+        <div class="card next" data-message="11">
+            <div class="message-number">11 / 24</div>
+            <div class="message-card">
+                <div class="message-title">1st staycation</div>
+                <div class="message-content">
+                    “Ma, may overnight kami sa bahay ng classnate ko, gagawa kami project.” Hindi ako makaramdam ng kaba nung nagpaalam ako. All I want is makasama ka. 
+                    <br><br>
+                    That day was yung first checking ng diorama namin. Minaadali ko na yung diorama with my groupmates para mauna kami magpacheck and mabilis makauwi. Thankfully, nasunod ang gusto ko at umalis ako agad ng school para makipagkita sayo.
+                    <br><br>
+                    The first thing we did was mag-grocery. Bumili tayo ng foods na lulutuin natin sa SM Fairview and Alfmart. Ibumili tayo ng ulam and drinks. Bumili din tayo ng quail eggs na sinabi nong luto na pero nung binasag ko nabasa lang yung kamay ko. We also bought bread, ingredients for a bread spreadings, fries, etc.
+                    <br><br>
+                    And then nag-proceed na tayo sa Trees Residences. Medyo naligaw tayo and napagod but eventually nakarating din tayo sa pintuan ng unit na ni-book natin, entered the passcode sa pinto, and pumasok. Bumungad satin ang mabango and maaliwalas na room.
+                    <br><br>
+                    We made ourselves comfortable and did many things.
+                    <br><br>
+                    We cozied up on the sofa and watched some horror movies. We watched a few but two movies stood up upon the rest. We watched Smile, which weird us out because dun sa mga deaths. Then we watched Incantation, which is our top 1 because it was really unsettling and otherworldly.
+                    <br><br>
+                    Also, we finally finished watching Hunter x Hunter. We had been watching it in bits and pieces before, but this time, tinapos na natin. Sharing this experience made the story even more memorable, and now, whenever I think of Hunter x Hunter, it reminds us of that special time we spent together.
+                    <br><br>
+                    We played some PS4 games, mainly Tekken. I’m just mashing out the buttons, hoping na maka-trigger ako ng combo. 
+                    <br><br>
+                    We also tried board games. We played UNO, nakalimutan ko pa yung rules pero inexplain mo naman sakin ulit, and tried another game that we didn't fully understand, but we made up our own rules based on our understanding.
+                    <br><br>
+                    Natulog tayo ng magkatabi and we also did what we always do. Dinidisplay nalang natin yung condom sa ibabaw ng mga table, naka fully-stretched pa kahit na may ineexpect tayong tao na magdadala ng laundry ng may ari ng unit.
+                    <br><br>
+                    Eating with you with the food we cooked together feels so light. Habang nagluluto ka, pinapanood lang kita. No matter how simple yung mga niluto natin, sobrang saya ko dahil kasama kita and siyempre masarap yung mga ginawa natin na foods.
+                    <br><br>
+                    That staycation felt like a free trial of a life we could build together. We got a glimpse of what it’s like to share a space, to watch the tv together as we hug each other on the couch, to cook and clean side by side, to fall asleep next to each other. Sa saglit na panahon yun, I saw how easy it was to be with you. No pressure, and no pretending.
+                </div>
+            </div>
+        </div>
+
+        <div class="card next" data-message="12">
+            <div class="message-number">12 / 24</div>
+            <div class="message-card">
+                <div class="message-title">The last goodbye that wasn't</div>
+                <div class="message-content">
+                    We agreed to meet one last time, to return each other’s things, to say goodbye. The plan was simple: Magkikita lang tayo sa Manggahan, exchange what needed to be exchanged, and walk away.
+                    <br><br>
+                    But I know both of us couldn't end it all like that.
+                    <br><br>
+                    Instead of parting ways, we wandered through Morayta and Cubao. Almost unconsciously, we retraced the steps we had taken a hundred times before. We passed by the food restaurants we used to eat at, the coffee shops we used to study at, the specific corners that served as a venue when we had an argument. It felt like we were watching the end credits of a movie. These were just ordinary places for anyone else, but for us, these were landmarks of our love story.
+                    <br><br>
+                    When the moment finally came to separate, something in me broke. I held you tighter, kissed you like it was the last time because I believed it was. And when you walked away, I realized I can’t do it. I couldn’t just let you go. I did what I think is right and you know what happened next.
+                </div>
+            </div>
+        </div>
+
+        <div class="card next" data-message="13">
+            <div class="message-number">13 / 24</div>
+            <div class="message-card">
+                <div class="message-title">No need to prove yourself to be loved</div>
+                <div class="message-content">
+                    Even if the world expects you to prove something first before you're allowed to be loved, you already deserve love now. Hindi mo kailangang pumasa muna sa exam, o magkaroon ng trabaho, para mahalin. You are already enough, just as you are. And I’m here.
+                </div>
+            </div>
+        </div>
+
+        <div class="card next" data-message="14">
+            <div class="message-number">14 / 24</div>
+            <div class="message-card">
+                <div class="message-title">You don’t have to be perfect to be enough</div>
+                <div class="message-content">
+                    You don't have to be perfect to be enough. Failures don't erase your worth. If anything, they remind me how strong you are for trying anyway. Sobrang proud ako sa effort na binuhos mo, mapa review man yan, sa akin, or sa parents mo. Everything.
+                </div>
+            </div>
+        </div>
+        
+        <div class="card next" data-message="15">
+            <div class="message-number">15 / 24</div>
+            <div class="message-card">
+                <div class="message-title">You Don't have to carry everything alone</div>
+                <div class="message-content">
+                    You don't have to carry everything alone. Even when you feel like no one else sees what you're going through, I do. I see the way you hold it in, and I want you to know you don't have to. Kung may bumabagabag sayo o kung may mabigat kang dinadala, I'm here to listen.
+                </div>
+            </div>
+        </div>
+        
+        <div class="card next" data-message="16">
+            <div class="message-number">16 / 24</div>
+            <div class="message-card">
+                <div class="message-title">I want to be your go-to if you're sad or tired</div>
+                <div class="message-content">
+                    You're not a burden when you're sad or tired. You're still the same person I love, even sa mga pagkakataon na feeling mo kalaban mo nalang lahat at pagod ka. Yun yung mga pagkakataon na dapat at kailangan na kasama kita.
+                </div>
+            </div>
+        </div>
+        
+        <div class="card next" data-message="17">
+            <div class="message-number">17 / 24</div>
+            <div class="message-card">
+                <div class="message-title">Your feelings are valid</div>
+                <div class="message-content">
+                    You don't have to ask for permission para maramdaman ang lungkot, galit, o pagod. I'll hold space for whatever emotion ang dumating, hindi ka burden, kundi bahagi ng kung sino ka. I'll do my best to be the one na masasandalan mo. Sana pagbigyan mo ako.
+                </div>
+            </div>
+        </div>
+        
+        <div class="card next" data-message="18">
+            <div class="message-number">18 / 24</div>
+            <div class="message-card">
+                <div class="message-title">I'll do everything for you</div>
+                <div class="message-content">
+                    If loving you means adjusting, defending, understanding, and standing up even when it's hard, then I'll keep doing it (kahit na minsan talaga umiinit ang mga ulo natin). Because for me, you're always worth it. Not someday, not later. Now.
+                </div>
+            </div>
+        </div>
+        
+        <div class="card next" data-message="19">
+            <div class="message-number">19 / 24</div>
+            <div class="message-card">
+                <div class="message-title">I’m looking forward to the simple life with you</div>
+                <div class="message-content">
+                    I'm looking forward to the simple life with you, yung magkasama lang tayo sa iisang bubong. Yung tipong nagtutulungan na tayo sa mga gawain sa sarili nating bahay. I can already see us going on late-night walks, holding hands habang naghahanap ng makakain sa convenience store or fast food. Wala mang engrande, basta ikaw ang kasama, panalo na ako.
+                </div>
+            </div>
+        </div>
+        
+        <div class="card next" data-message="20">
+            <div class="message-number">20 / 24</div>
+            <div class="message-card">
+                <div class="message-title">Read me the letter I made for myself</div>
+                <div class="message-content">
+                    I can't wait for the day na mabasa mo sa harap ko yung letter I made for my future self back in senior high. Oo, medyo cringe. It talks about my dreams, and the things I want to be someday. At gusto kong andun ka, because you're now part of the answers to those dreams.
+                </div>
+            </div>
+        </div>
+        
+        <div class="card next" data-message="21">
+            <div class="message-number">21 / 24</div>
+            <div class="message-card">
+                <div class="message-title">I’ll love you no matter where you are</div>
+                <div class="message-content">
+                    Mag-work ka man sa malayo dito sa QC, sa province, or even sa ibang bansa. hinding-hindi mo kailangang pagdudahan ang pagmamahal ko. Distance might stretch us, but I'll make sure our hearts stay close. I'll work hard too, para isang araw, tayo na lang ang magkasama araw-araw.
+                </div>
+            </div>
+        </div>
+        
+        <div class="card next" data-message="22">
+            <div class="message-number">22 / 24</div>
+            <div class="message-card">
+                <div class="message-title">I don’t know what the future holds</div>
+                <div class="message-content">
+                    I don't know what the future holds. But one thing I know for sure: ikaw pa rin ang pipiliin ko sa bawat bukas. No matter how uncertain life gets, my love for you will always stay steady.
+                </div>
+            </div>
+        </div>
+        
+        <div class="card next" data-message="23">
+            <div class="message-number">23 / 24</div>
+            <div class="message-card">
+                <div class="message-title">You're the only one</div>
+                <div class="message-content">
+                    You're the only person I've ever loved this much. I can't face this life without you by my side. Kahit nag-aaway tayo, kahit nasabi ko minsan na ayoko sa ganito o ganyan, kahit nasabi ko na nakakapagod, my love for you stays the same. Hindi yun nagbabago. I'm really sorry sa lahat ng nasabi ko kapag nadadala ako ng inis. I know those words can hurt, and I regret them. I hope na wag mong isipin na ipagpapalit kita dahil sa mga nasabi ko, I promise you na hindi. I'm trying my best na baguhin yung ganun kong ugali. You mean so much to me, and I want to be better for you.
+                </div>
+            </div>
+        </div>
+        
+        <div class="card next" data-message="24">
+            <div class="message-number">24 / 24</div>
+            <div class="message-card">
+                <div class="message-title">Happy birthday, Love!</div>
+                <div class="message-content">
+                    Happy 24th birthday! I can't wait to celebrate all your next birthdays with you. Sobrang swerte ko sayo. Ikaw yung may birthday pero ako pa ang nabigyan ng regalo: a woman who has the laugh that lights up my days, someone na gentle magsalita that calms my every worry. Ikaw 'yung unang iniisip ko paggising at huling nababalikan bago matulog.
+                    <br><br>
+                    Sobrang ganda mo, hindi lang sa panlabas kundi pati sa puso. Your laughter lights up my days, and your smile is the best sight I've ever seen. I love how thoughtful you are.
+                    <br><br>
+                    Wag ka mahiya na parang mas lumaki na naman yung age gap natin, ang mahalaga we love each other and care for each other deeply.
+                    <br><br>
+                    I love how mature and caring you are, kahit iba tayo ng edad. You bring out the best in me, at sana ganun din 'yung nararamdaman mo.
+                    <br><br>
+                    Thank you for being my partner, and my greatest supporter. Mahal na mahal kita, today and always. Happy birthday, love.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation-hint">
+        <div>Use ← → keys or swipe to navigate</div>
+    </div>
+
+    <script>
+        let currentIndex = 0;
+        const totalCards = 25; // Including splash screen
+        const cards = document.querySelectorAll('.card');
+        let startX = null;
+        let currentX = null;
+        let cardBeingDragged = null;
+
+        function updateProgressBar() {
+            const progress = (currentIndex / (totalCards - 1)) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function showCard(index) {
+            cards.forEach((card, i) => {
+                card.classList.remove('prev', 'current', 'next');
+                
+                if (i < index) {
+                    card.classList.add('prev');
+                } else if (i === index) {
+                    card.classList.add('current');
+                } else {
+                    card.classList.add('next');
+                }
+            });
+            updateProgressBar();
+        }
+
+        function nextCard() {
+            if (currentIndex < totalCards - 1) {
+                currentIndex++;
+                showCard(currentIndex);
+            }
+        }
+
+        function prevCard() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                showCard(currentIndex);
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextCard();
+            } else if (e.key === 'ArrowLeft') {
+                prevCard();
+            }
+        });
+
+        document.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!startX) return;
+            currentX = e.touches[0].clientX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            if (!startX || !currentX) return;
+            
+            const diffX = startX - currentX;
+            const threshold = 50;
+
+            if (Math.abs(diffX) > threshold) {
+                if (diffX > 0) {
+                    nextCard();
+                } else {
+                    prevCard();
+                }
+            }
+
+            startX = null;
+            currentX = null;
+        });
+
+        // Initialize
+        showCard(0);
+    </script>
 </body>
 </html>
